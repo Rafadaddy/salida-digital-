@@ -3,7 +3,7 @@ import { Users, Shield, Eye, AlertCircle, Wrench } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 
 const Login: React.FC = () => {
-  const { setUsuario, error, clearError, isLoading, verificarUsuario, demoMode } = useApp();
+  const { setUsuario, error, clearError, isLoading, verificarUsuario } = useApp();
   const [nombre, setNombre] = useState('');
   const [rolSeleccionado, setRolSeleccionado] = useState<'colaborador' | 'supervisor' | 'vigilante'>('colaborador');
 
@@ -69,17 +69,6 @@ const Login: React.FC = () => {
           <p className="text-gray-600">
             <span>Accede con tu nombre y selecciona tu rol</span>
           </p>
-          {demoMode && (
-            <div className="mt-4 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center justify-center gap-2 text-blue-700">
-                <Wrench className="h-4 w-4" />
-                <span className="text-sm font-medium">MODO DEMO</span>
-              </div>
-              <p className="text-xs text-blue-600 mt-1">
-                Aplicación funcionando con datos locales de prueba
-              </p>
-            </div>
-          )}
         </div>
 
         {error && (
@@ -117,8 +106,8 @@ const Login: React.FC = () => {
                   <label
                     key={rol.id}
                     className={`block p-4 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${rolSeleccionado === rol.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200'
                       }`}
                   >
                     <input
