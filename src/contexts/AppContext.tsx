@@ -231,7 +231,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         valido: true,
         empleado: solicitud.Nombre,
         motivo: solicitud.Motivo,
-        enSalida: solicitud.Estado === 'en_salida'
+        enSalida: solicitud.Estado === 'en_salida',
+        tiempoRestante: fechaExp ? Math.max(0, Math.ceil((fechaExp.getTime() - ahora.getTime()) / 60000)) : 0
       };
     } catch (err) {
       setError("Error al validar NIP");
