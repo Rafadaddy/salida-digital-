@@ -110,7 +110,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     let q = query(collection(db, "solicitudes"), orderBy("Fecha_Hora_Solicitud", "desc"));
 
     if (usuario.rol === 'colaborador') {
-      q = query(collection(db, "solicitudes"), where("Nombre", "==", usuario.nombre), orderBy("Fecha_Hora_Solicitud", "desc"));
+      // Quitamos el orderBy de aquí para NO requerir un índice compuesto en Firebase
+      q = query(collection(db, "solicitudes"), where("Nombre", "==", usuario.nombre));
     }
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -140,6 +141,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
         data.push(solicitud);
       });
+
+      // Ordenar manualmente por fecha (más reciente primero) para evitar errores de índice en Firebase
+      data.sort((a, b) => new Date(b.Fecha_Hora_Solicitud).getTime() - new Date(a.Fecha_Hora_Solicitud).getTime());
 
       setSolicitudes(data);
       setIsLoading(false);
