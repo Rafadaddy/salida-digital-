@@ -33,7 +33,7 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!nombre.trim()) {
       return;
     }
@@ -43,12 +43,12 @@ const Login: React.FC = () => {
     try {
       // Usar la función verificarUsuario del contexto (funciona tanto en modo demo como real)
       const success = await verificarUsuario?.(nombre.trim(), rolSeleccionado);
-      
+
       if (!success) {
         // El error ya fue manejado por el contexto
         return;
       }
-      
+
       // El usuario se configuró automáticamente en el contexto si el login fue exitoso
     } catch (err) {
       console.error('Error de autenticación:', err);
@@ -57,17 +57,17 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 flex items-center justify-center p-4">
+    <div key="login-container" className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mb-4">
             <Shield className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Sistema de Pases de Salida
+            <span>Sistema de Pases de Salida</span>
           </h1>
           <p className="text-gray-600">
-            Accede con tu nombre y selecciona tu rol
+            <span>Accede con tu nombre y selecciona tu rol</span>
           </p>
           {demoMode && (
             <div className="mt-4 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
@@ -83,9 +83,9 @@ const Login: React.FC = () => {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+          <div key="login-error-alert" className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-red-700">{error}</div>
+            <div className="text-sm text-red-700"><span>{error}</span></div>
           </div>
         )}
 
@@ -116,11 +116,10 @@ const Login: React.FC = () => {
                 return (
                   <label
                     key={rol.id}
-                    className={`block p-4 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${
-                      rolSeleccionado === rol.id
+                    className={`block p-4 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${rolSeleccionado === rol.id
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200'
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"

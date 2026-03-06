@@ -158,28 +158,28 @@ const VigilanteDashboard: React.FC = () => {
     <div>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div key="vigilante-header" className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
               <Eye className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Control de Acceso</h1>
-              <p className="text-gray-600">Validación de pases de salida - {usuario?.nombre}</p>
+              <h1 className="text-xl font-bold text-gray-900"><span>Control de Acceso</span></h1>
+              <p className="text-gray-600"><span>Validación de pases de salida - {usuario?.nombre}</span></p>
             </div>
           </div>
         </div>
 
         {/* Error global */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+          <div key="global-error" className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-red-700">{error}</p>
+            <p className="text-red-700"><span>{error}</span></p>
           </div>
         )}
 
         {/* Selector de Modo */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
+        <div key="mode-selector" className="bg-white rounded-xl shadow-sm p-4">
           <div className="flex items-center justify-center gap-4">
             <span className="text-sm font-medium text-gray-700">Modo de operación:</span>
             <div className="flex gap-2">
@@ -189,12 +189,12 @@ const VigilanteDashboard: React.FC = () => {
                   handleLimpiar();
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${modoRegistro === 'salida'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
                 <CheckCircle className="h-4 w-4" />
-                Autorizar Salida
+                <span>Autorizar Salida</span>
               </button>
               <button
                 onClick={() => {
@@ -202,29 +202,29 @@ const VigilanteDashboard: React.FC = () => {
                   handleLimpiar();
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${modoRegistro === 'regreso'
-                    ? 'bg-orange-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-orange-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
                 <LogIn className="h-4 w-4" />
-                Registrar Regreso
+                <span>Registrar Regreso</span>
               </button>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div key="dashboard-main-grid" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Panel de Ingreso de NIP */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="text-center mb-6">
               <Hash className={`h-12 w-12 mx-auto mb-3 ${modoRegistro === 'regreso' ? 'text-orange-600' : 'text-gray-600'}`} />
               <h2 className="text-lg font-bold text-gray-900">
-                {modoRegistro === 'salida' ? 'Autorizar Salida' : 'Registrar Regreso'}
+                <span>{modoRegistro === 'salida' ? 'Autorizar Salida' : 'Registrar Regreso'}</span>
               </h2>
               <p className="text-gray-600">
-                {modoRegistro === 'salida'
+                <span>{modoRegistro === 'salida'
                   ? 'Ingresa el NIP del empleado que sale'
-                  : 'Ingresa el NIP del empleado que regresa'}
+                  : 'Ingresa el NIP del empleado que regresa'}</span>
               </p>
             </div>
 
@@ -233,10 +233,10 @@ const VigilanteDashboard: React.FC = () => {
               <div className="flex justify-center gap-3">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div
-                    key={index}
+                    key={`nip-digit-${index}`}
                     className="w-16 h-16 bg-white border-2 border-gray-300 rounded-lg flex items-center justify-center text-2xl font-bold"
                   >
-                    {nip[index] ? '•' : ''}
+                    <span>{nip[index] ? '•' : ''}</span>
                   </div>
                 ))}
               </div>
@@ -246,12 +246,12 @@ const VigilanteDashboard: React.FC = () => {
             <div className="grid grid-cols-3 gap-3 mb-4">
               {digitos.map((digito) => (
                 <button
-                  key={digito}
+                  key={`digit-button-${digito}`}
                   onClick={() => handleDigitoPress(digito)}
                   disabled={nip.length >= 4}
                   className="h-14 bg-gray-200 hover:bg-gray-300 text-xl font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {digito}
+                  <span>{digito}</span>
                 </button>
               ))}
             </div>
@@ -262,13 +262,13 @@ const VigilanteDashboard: React.FC = () => {
                 onClick={handleBorrar}
                 className="h-12 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors"
               >
-                Borrar
+                <span>Borrar</span>
               </button>
               <button
                 onClick={handleLimpiar}
                 className="h-12 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors"
               >
-                Limpiar
+                <span>Limpiar</span>
               </button>
             </div>
 
@@ -277,8 +277,8 @@ const VigilanteDashboard: React.FC = () => {
               onClick={handleValidarNIP}
               disabled={nip.length !== 4 || isLoading}
               className={`w-full h-14 text-white font-bold text-lg rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${modoRegistro === 'regreso'
-                  ? 'bg-orange-600 hover:bg-orange-700'
-                  : 'bg-blue-600 hover:bg-blue-700'
+                ? 'bg-orange-600 hover:bg-orange-700'
+                : 'bg-blue-600 hover:bg-blue-700'
                 }`}
             >
               {isLoading ? (
@@ -288,7 +288,7 @@ const VigilanteDashboard: React.FC = () => {
               ) : (
                 <CheckCircle className="h-5 w-5" />
               )}
-              {isLoading ? 'Validando...' : modoRegistro === 'regreso' ? 'Buscar Colaborador' : 'Validar NIP'}
+              <span>{isLoading ? 'Validando...' : modoRegistro === 'regreso' ? 'Buscar Colaborador' : 'Validar NIP'}</span>
             </button>
           </div>
 
@@ -296,9 +296,9 @@ const VigilanteDashboard: React.FC = () => {
           <div className="space-y-6">
             {/* Mensaje de Estado */}
             {mensaje && (
-              <div className={`rounded-xl p-4 flex items-start gap-3 ${tipoMensaje === 'exito' ? 'bg-green-50 border border-green-200' :
-                  tipoMensaje === 'error' ? 'bg-red-50 border border-red-200' :
-                    'bg-blue-50 border border-blue-200'
+              <div key={`status-message-${tipoMensaje}`} className={`rounded-xl p-4 flex items-start gap-3 ${tipoMensaje === 'exito' ? 'bg-green-50 border border-green-200' :
+                tipoMensaje === 'error' ? 'bg-red-50 border border-red-200' :
+                  'bg-blue-50 border border-blue-200'
                 }`}>
                 {tipoMensaje === 'exito' ? (
                   <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -308,38 +308,38 @@ const VigilanteDashboard: React.FC = () => {
                   <AlertCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
                 )}
                 <p className={`font-medium ${tipoMensaje === 'exito' ? 'text-green-800' :
-                    tipoMensaje === 'error' ? 'text-red-800' :
-                      'text-blue-800'
+                  tipoMensaje === 'error' ? 'text-red-800' :
+                    'text-blue-800'
                   }`}>
-                  {mensaje}
+                  <span>{mensaje}</span>
                 </p>
               </div>
             )}
 
             {/* Información del Pase Validado */}
             {nipValidado && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
+              <div key="validated-nip-panel" className="bg-white rounded-xl shadow-sm p-6">
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
                     <User className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">Pase Válido</h3>
+                  <h3 className="text-lg font-bold text-gray-900"><span>Pase Válido</span></h3>
                 </div>
 
                 <div className="space-y-4">
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">Empleado:</div>
-                    <div className="text-lg font-bold text-gray-900">{nipValidado.empleado}</div>
+                    <div className="text-sm text-gray-600 mb-1"><span>Empleado:</span></div>
+                    <div className="text-lg font-bold text-gray-900"><span>{nipValidado.empleado}</span></div>
                   </div>
 
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">Motivo:</div>
-                    <div className="text-gray-900">{nipValidado.motivo}</div>
+                    <div className="text-sm text-gray-600 mb-1"><span>Motivo:</span></div>
+                    <div className="text-gray-900"><span>{nipValidado.motivo}</span></div>
                   </div>
 
                   {nipValidado.tiempoRestante > 0 && (
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="text-sm text-gray-600 mb-3">Tiempo Restante:</div>
+                    <div key="remaining-time-container" className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-sm text-gray-600 mb-3"><span>Tiempo Restante:</span></div>
                       <TiempoRestante tiempoMinutos={nipValidado.tiempoRestante} />
                     </div>
                   )}

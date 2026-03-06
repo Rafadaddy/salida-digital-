@@ -20,20 +20,20 @@ function AppContent() {
   const renderDashboard = () => {
     switch (usuario.rol) {
       case 'colaborador':
-        return <ColaboradorDashboard />;
+        return <ColaboradorDashboard key="dashboard-colaborador" />;
       case 'supervisor':
-        return <SupervisorDashboard />;
+        return <SupervisorDashboard key="dashboard-supervisor" />;
       case 'vigilante':
-        return <VigilanteDashboard />;
+        return <VigilanteDashboard key="dashboard-vigilante" />;
       default:
-        return <div className="text-red-500">Rol no reconocido</div>;
+        return <div key="dashboard-unknown" className="text-red-500"><span>Rol no reconocido</span></div>;
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header key="app-header" className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center gap-3">
@@ -42,20 +42,20 @@ function AppContent() {
               </div>
               <div>
                 <h1 className="text-lg font-bold text-gray-900">
-                  Sistema de Pases de Salida
+                  <span>Sistema de Pases de Salida</span>
                 </h1>
                 <p className="text-sm text-gray-600">
-                  {usuario.nombre} - {usuario.rol.charAt(0).toUpperCase() + usuario.rol.slice(1)}
+                  <span>{usuario.nombre} - {usuario.rol.charAt(0).toUpperCase() + usuario.rol.slice(1)}</span>
                 </p>
               </div>
             </div>
-            
+
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <LogOut className="h-4 w-4" />
-              Cerrar Sesión
+              <span>Cerrar Sesión</span>
             </button>
           </div>
         </div>
