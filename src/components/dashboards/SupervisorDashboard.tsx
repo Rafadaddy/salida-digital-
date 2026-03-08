@@ -5,13 +5,22 @@ import { Shield, CheckCircle, XCircle, Clock, Filter, RefreshCw, Users, AlertCir
 const SupervisorDashboard: React.FC = () => {
   const { usuario, solicitudes, autorizarSolicitud, actualizarSolicitudes, isLoading, error, exportarExcel } = useApp();
   const [filtroEstado, setFiltroEstado] = useState('todos');
+  const [activeTab, setActiveTab] = useState<'solicitudes' | 'historial'>('solicitudes');
   const [solicitudesFiltradas, setSolicitudesFiltradas] = useState<any[]>([]);
 
   useEffect(() => {
     let filtradas = solicitudes;
 
+    // Primer filtro: Tabs
+    if (activeTab === 'solicitudes') {
+      filtradas = filtradas.filter(s => ['pendiente', 'autorizada', 'en_salida'].includes(s.Estado));
+    } else {
+      filtradas = filtradas.filter(s => ['regresada', 'rechazada', 'expirada'].includes(s.Estado));
+    }
+
+    // Segundo filtro: Dropdown de estado
     if (filtroEstado !== 'todos') {
-      filtradas = solicitudes.filter(s => s.Estado === filtroEstado);
+      filtradas = filtradas.filter(s => s.Estado === filtroEstado);
     }
 
     // Ordenar por fecha de solicitud (más recientes primero)
@@ -20,7 +29,7 @@ const SupervisorDashboard: React.FC = () => {
     });
 
     setSolicitudesFiltradas(filtradas);
-  }, [solicitudes, filtroEstado]);
+  }, [solicitudes, filtroEstado, activeTab]);
 
   const handleAutorizar = async (id: string, decision: 'autorizar' | 'rechazar') => {
     const confirmacion = decision === 'autorizar'
@@ -247,11 +256,40 @@ const SupervisorDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Tabs de Navegación de Listado */}
+      <div className="flex gap-4 mb-2 px-2">
+        <button
+          onClick={() => {
+            setActiveTab('solicitudes');
+            setFiltroEstado('todos');
+          }}
+          className={`px-8 py-3 rounded-t-xl font-black transition-all duration-200 shadow-sm border-b-4 ${activeTab === 'solicitudes'
+              ? 'bg-white text-gray-900 border-blue-600 -translate-y-1 shadow-md'
+              : 'bg-gray-100 text-gray-400 border-transparent hover:bg-gray-200'
+            }`}
+        >
+          SOLICITUDES ({solicitudes.filter(s => ['pendiente', 'autorizada', 'en_salida'].includes(s.Estado)).length})
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab('historial');
+            setFiltroEstado('todos');
+          }}
+          className={`px-8 py-3 rounded-t-xl font-black transition-all duration-200 shadow-sm border-b-4 ${activeTab === 'historial'
+              ? 'bg-white text-gray-900 border-red-600 -translate-y-1 shadow-md'
+              : 'bg-gray-100 text-gray-400 border-transparent hover:bg-gray-200'
+            }`}
+        >
+          HISTORIAL
+        </button>
+      </div>
+
       {/* Lista de Solicitudes */}
-      <div className="bg-white rounded-xl shadow-sm">
+      <div className="bg-white rounded-xl rounded-tl-none shadow-sm">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900">
-            Solicitudes ({solicitudesFiltradas.length})
+          <h2 className="text-lg font-bold text-gray-900 uppercase tracking-tight">
+            {activeTab === 'solicitudes' ? 'Panel de Gestión Activa' : 'Historial de Movimientos'}
+            <span className="ml-2 text-sm font-normal text-gray-500">({solicitudesFiltradas.length} items)</span>
           </h2>
         </div>
 
