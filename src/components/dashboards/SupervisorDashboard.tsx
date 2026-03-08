@@ -9,24 +9,24 @@ const SupervisorDashboard: React.FC = () => {
 
   useEffect(() => {
     let filtradas = solicitudes;
-    
+
     if (filtroEstado !== 'todos') {
       filtradas = solicitudes.filter(s => s.Estado === filtroEstado);
     }
-    
+
     // Ordenar por fecha de solicitud (más recientes primero)
     filtradas.sort((a, b) => {
       return new Date(b.Fecha_Hora_Solicitud).getTime() - new Date(a.Fecha_Hora_Solicitud).getTime();
     });
-    
+
     setSolicitudesFiltradas(filtradas);
   }, [solicitudes, filtroEstado]);
 
   const handleAutorizar = async (id: string, decision: 'autorizar' | 'rechazar') => {
-    const confirmacion = decision === 'autorizar' 
-      ? '¿Estás seguro de autorizar esta solicitud?' 
+    const confirmacion = decision === 'autorizar'
+      ? '¿Estás seguro de autorizar esta solicitud?'
       : '¿Estás seguro de rechazar esta solicitud?';
-    
+
     if (window.confirm(confirmacion)) {
       await autorizarSolicitud(id, decision);
     }
@@ -51,7 +51,7 @@ const SupervisorDashboard: React.FC = () => {
       rechazada: 'bg-red-100 text-red-800 border-red-200',
       expirada: 'bg-gray-100 text-gray-800 border-gray-200',
     };
-    
+
     const etiquetas: Record<string, string> = {
       pendiente: 'PENDIENTE',
       autorizada: 'AUTORIZADA',
@@ -60,7 +60,7 @@ const SupervisorDashboard: React.FC = () => {
       rechazada: 'RECHAZADA',
       expirada: 'EXPIRADA',
     };
-    
+
     return (
       <span className={`px-3 py-1 rounded-full text-xs font-medium border ${estilos[estado] || estilos.pendiente}`}>
         {etiquetas[estado] || estado.toUpperCase()}
@@ -91,7 +91,7 @@ const SupervisorDashboard: React.FC = () => {
     }
 
     const color = tiempoRestante <= 2 ? 'text-red-600' : tiempoRestante <= 5 ? 'text-yellow-600' : 'text-green-600';
-    
+
     return (
       <span className={`text-xs font-medium ${color}`}>
         {tiempoRestante} min
@@ -147,7 +147,7 @@ const SupervisorDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-green-50 border border-green-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <CheckCircle className="h-8 w-8 text-green-600" />
@@ -157,7 +157,7 @@ const SupervisorDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <Users className="h-8 w-8 text-orange-600" />
@@ -167,7 +167,7 @@ const SupervisorDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <LogIn className="h-8 w-8 text-blue-600" />
@@ -177,7 +177,7 @@ const SupervisorDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-red-50 border border-red-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <XCircle className="h-8 w-8 text-red-600" />
@@ -254,7 +254,7 @@ const SupervisorDashboard: React.FC = () => {
             Solicitudes ({solicitudesFiltradas.length})
           </h2>
         </div>
-        
+
         {solicitudesFiltradas.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -270,17 +270,17 @@ const SupervisorDashboard: React.FC = () => {
                       <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <Users className="h-6 w-6 text-gray-600" />
                       </div>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="font-bold text-gray-900">{solicitud.Nombre}</h3>
                           {getEstadoBadge(solicitud.Estado)}
                         </div>
-                        
+
                         <div className="space-y-1 text-sm text-gray-600">
                           <p><strong>Motivo:</strong> {solicitud.Motivo}</p>
                           <p><strong>Solicitado:</strong> {formatearFecha(solicitud.Fecha_Hora_Solicitud)}</p>
-                          
+
                           {solicitud.Estado === 'autorizada' && (
                             <div className="mt-3 p-3 bg-green-50 rounded-lg">
                               <div className="flex items-center justify-between">
@@ -301,7 +301,7 @@ const SupervisorDashboard: React.FC = () => {
                               )}
                             </div>
                           )}
-                          
+
                           {/* Estado En Salida */}
                           {solicitud.Estado === 'en_salida' && (
                             <div className="mt-3 p-3 bg-orange-50 rounded-lg">
@@ -316,7 +316,7 @@ const SupervisorDashboard: React.FC = () => {
                               </p>
                             </div>
                           )}
-                          
+
                           {/* Estado Regresada */}
                           {solicitud.Estado === 'regresada' && solicitud.Fecha_Hora_Regreso && (
                             <div className="mt-3 p-3 bg-blue-50 rounded-lg">
@@ -332,9 +332,14 @@ const SupervisorDashboard: React.FC = () => {
                               <p className="text-blue-700 text-xs mt-1">
                                 ✈ Regreso registrado: {formatearFecha(solicitud.Fecha_Hora_Regreso)}
                               </p>
+                              {solicitud.Duracion_Fuera && (
+                                <p className="text-blue-900 font-bold text-sm mt-2">
+                                  ⏱ Tiempo fuera: {solicitud.Duracion_Fuera}
+                                </p>
+                              )}
                             </div>
                           )}
-                          
+
                           {solicitud.Estado === 'rechazada' && solicitud.Supervisor_Aprobador && (
                             <div className="mt-2 p-2 bg-red-50 rounded">
                               <p className="text-red-700 text-xs">
@@ -346,7 +351,7 @@ const SupervisorDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Botones de acción */}
                   {solicitud.Estado === 'pendiente' && (
                     <div className="flex gap-2 ml-4">

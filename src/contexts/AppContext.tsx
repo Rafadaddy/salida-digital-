@@ -34,7 +34,9 @@ export interface Solicitud {
   NIP?: string;
   Fecha_Expiracion?: string;
   Salida_Autorizada_Por_Vigilante?: string;
+  Fecha_Hora_Salida_Fisica?: string;
   Fecha_Hora_Regreso?: string;
+  Duracion_Fuera?: string;
 }
 
 export interface AppContextType {
@@ -61,13 +63,13 @@ export const exportarExcel = (solicitudes: Solicitud[], nombreArchivo: string = 
   const encabezados = [
     'ID', 'Nombre', 'Motivo', 'Fecha_Hora_Solicitud', 'Estado',
     'Supervisor_Aprobador', 'Fecha_Hora_Aprobacion', 'NIP',
-    'Fecha_Expiracion', 'Salida_Autorizada_Por_Vigilante', 'Fecha_Hora_Regreso'
+    'Fecha_Expiracion', 'Salida_Fisica', 'Vigilante', 'Fecha_Hora_Regreso', 'Duracion'
   ];
 
   const filas = solicitudes.map(s => [
     s.ID, s.Nombre, s.Motivo, s.Fecha_Hora_Solicitud, s.Estado,
     s.Supervisor_Aprobador || '', s.Fecha_Hora_Aprobacion || '', s.NIP || '',
-    s.Fecha_Expiracion || '', s.Salida_Autorizada_Por_Vigilante || '', s.Fecha_Hora_Regreso || ''
+    s.Fecha_Expiracion || '', s.Fecha_Hora_Salida_Fisica || '', s.Salida_Autorizada_Por_Vigilante || '', s.Fecha_Hora_Regreso || '', s.Duracion_Fuera || ''
   ]);
 
   const contenidoCSV = [
@@ -128,7 +130,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           Fecha_Hora_Solicitud: item.Fecha_Hora_Solicitud?.toDate?.()?.toISOString() || item.Fecha_Hora_Solicitud,
           Fecha_Hora_Aprobacion: item.Fecha_Hora_Aprobacion?.toDate?.()?.toISOString() || item.Fecha_Hora_Aprobacion,
           Fecha_Expiracion: item.Fecha_Expiracion?.toDate?.()?.toISOString() || item.Fecha_Expiracion,
+          Fecha_Hora_Salida_Fisica: item.Fecha_Hora_Salida_Fisica?.toDate?.()?.toISOString() || item.Fecha_Hora_Salida_Fisica,
           Fecha_Hora_Regreso: item.Fecha_Hora_Regreso?.toDate?.()?.toISOString() || item.Fecha_Hora_Regreso,
+          Duracion_Fuera: item.Duracion_Fuera,
         } as Solicitud;
 
         // Auto-expirar si el tiempo pasó
@@ -250,7 +254,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const docRef = querySnapshot.docs[0].ref;
       await updateDoc(docRef, {
         Estado: 'en_salida',
-        Salida_Autorizada_Por_Vigilante: usuario.nombre
+        Salida_Autorizada_Por_Vigilante: usuario.nombre,
+        Fecha_Hora_Salida_Fisica: serverTimestamp()
       });
       return true;
     } catch (err) {
@@ -266,9 +271,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (querySnapshot.empty) return false;
 
       const docRef = querySnapshot.docs[0].ref;
+      const solicitud = querySnapshot.docs[0].data();
+      const horaSalida = solicitud.Fecha_Hora_Salida_Fisica?.toDate?.() || new Date();
+      const horaRegreso = new Date();
+
+      const diffMs = horaRegreso.getTime() - horaSalida.getTime();
+      const diffMin = Math.round(diffMs / 60000);
+      const duracion = diffMin < 60 ? `${diffMin} min` : `${Math.floor(diffMin / 60)}h ${diffMin % 60}min`;
+
       await updateDoc(docRef, {
         Estado: 'regresada',
-        Fecha_Hora_Regreso: serverTimestamp()
+        Fecha_Hora_Regreso: serverTimestamp(),
+        Duracion_Fuera: duracion
       });
       return true;
     } catch (err) {

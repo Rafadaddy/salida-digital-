@@ -21,10 +21,15 @@ const ColaboradorDashboard: React.FC = () => {
 
   // Buscar solicitud autorizada activa y en salida
   useEffect(() => {
-    const solicitudAutorizada = solicitudes.find(
+    // Ver solo solicitudes activas (ocultar historial de regresadas/rechazadas/expiradas)
+    const solicitudesActivas = solicitudes.filter(s =>
+      ['pendiente', 'autorizada', 'en_salida'].includes(s.Estado)
+    );
+
+    const solicitudAutorizada = solicitudesActivas.find(
       (s) => s.Estado === 'autorizada' && s.Nombre === usuario?.nombre
     );
-    const solicitudEnSalida = solicitudes.find(
+    const solicitudEnSalida = solicitudesActivas.find(
       (s) => s.Estado === 'en_salida' && s.Nombre === usuario?.nombre
     );
     setSolicitudActiva(solicitudAutorizada || null);
@@ -33,7 +38,7 @@ const ColaboradorDashboard: React.FC = () => {
 
   const handleCrearSolicitud = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!nuevoMotivo) return;
 
     const exito = await crearSolicitud(nuevoMotivo);
@@ -77,7 +82,7 @@ const ColaboradorDashboard: React.FC = () => {
       rechazada: 'bg-red-100 text-red-800 border-red-200',
       expirada: 'bg-gray-100 text-gray-800 border-gray-200',
     };
-    
+
     const etiquetas: Record<string, string> = {
       pendiente: 'PENDIENTE',
       autorizada: 'AUTORIZADA',
@@ -86,7 +91,7 @@ const ColaboradorDashboard: React.FC = () => {
       rechazada: 'RECHAZADA',
       expirada: 'EXPIRADA',
     };
-    
+
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium border ${estilos[estado] || estilos.pendiente}`}>
         {etiquetas[estado] || estado.toUpperCase()}
@@ -113,7 +118,7 @@ const ColaboradorDashboard: React.FC = () => {
     }
 
     const color = tiempoRestante <= 2 ? 'text-red-600' : tiempoRestante <= 5 ? 'text-yellow-600' : 'text-green-600';
-    
+
     return (
       <span className={`font-bold ${color}`}>
         {tiempoRestante} min restantes
@@ -217,25 +222,24 @@ const ColaboradorDashboard: React.FC = () => {
                   <p><strong>Salida autorizada por:</strong> {solicitudEnSalida.Salida_Autorizada_Por_Vigilante}</p>
                 </div>
               </div>
-              
+
               {/* Mensaje de resultado */}
               {mensajeRegreso && (
-                <div className={`mb-4 p-3 rounded-lg ${
-                  tipoMensajeRegreso === 'exito' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <div className={`mb-4 p-3 rounded-lg ${tipoMensajeRegreso === 'exito' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
                   {mensajeRegreso}
                 </div>
               )}
-              
+
               {/* Botón de Regresar */}
               <button
                 onClick={async () => {
                   if (!solicitudEnSalida.NIP) return;
-                  
+
                   const confirmacion = window.confirm(
                     '¿Confirmas tu regreso a la empresa?'
                   );
-                  
+
                   if (confirmacion) {
                     const exito = await registrarRegreso(solicitudEnSalida.NIP);
                     if (exito) {
@@ -352,7 +356,7 @@ const ColaboradorDashboard: React.FC = () => {
             </button>
           )}
         </div>
-        
+
         {solicitudes.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -360,7 +364,7 @@ const ColaboradorDashboard: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {solicitudes.map((solicitud) => (
+            {solicitudes.filter(s => ['pendiente', 'autorizada', 'en_salida'].includes(s.Estado)).map((solicitud) => (
               <div
                 key={solicitud.ID}
                 className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
@@ -374,7 +378,7 @@ const ColaboradorDashboard: React.FC = () => {
                   </div>
                   {getEstadoBadge(solicitud.Estado)}
                 </div>
-                
+
                 {solicitud.Estado === 'autorizada' && solicitud.NIP && (
                   <div className="mt-3 p-3 bg-green-50 rounded-lg">
                     <div className="flex items-center justify-between">
@@ -383,31 +387,6 @@ const ColaboradorDashboard: React.FC = () => {
                         {solicitud.NIP}
                       </span>
                     </div>
-                  </div>
-                )}
-                
-                {solicitud.Estado === 'rechazada' && solicitud.Supervisor_Aprobador && (
-                  <p className="text-sm text-red-600 mt-2">
-                    Rechazado por: {solicitud.Supervisor_Aprobador}
-                  </p>
-                )}
-
-                {/* Información de Regreso */}
-                {solicitud.Estado === 'regresada' && solicitud.Fecha_Hora_Regreso && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2 py-1 bg-blue-200 text-blue-800 rounded-full text-xs font-bold">
-                        REGRESADO
-                      </span>
-                    </div>
-                    <p className="text-blue-800 text-sm">
-                      <strong>Fecha de regreso:</strong> {formatearFecha(solicitud.Fecha_Hora_Regreso)}
-                    </p>
-                    {solicitud.Fecha_Hora_Aprobacion && (
-                      <p className="text-blue-700 text-xs mt-1">
-                        Tiempo total de ausencia: {calcularTiempoAusencia(solicitud.Fecha_Hora_Aprobacion, solicitud.Fecha_Hora_Regreso)}
-                      </p>
-                    )}
                   </div>
                 )}
               </div>
