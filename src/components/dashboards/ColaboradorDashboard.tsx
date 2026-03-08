@@ -362,62 +362,6 @@ const ColaboradorDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Historial de Solicitudes */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">Mis Solicitudes</h2>
-          {solicitudes.length > 0 && (
-            <button
-              onClick={() => {
-                if (exportarExcel) {
-                  exportarExcel(solicitudes, `mis_pases_${usuario?.nombre.replace(' ', '_')}`);
-                }
-              }}
-              className="flex items-center gap-2 px-3 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors text-sm"
-            >
-              <Download className="h-4 w-4" />
-              Exportar
-            </button>
-          )}
-        </div>
-
-        {solicitudes.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>No tienes solicitudes aún</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {solicitudes.filter(s => ['pendiente', 'autorizada', 'en_salida'].includes(s.Estado)).map((solicitud) => (
-              <div
-                key={solicitud.ID}
-                className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{solicitud.Motivo}</p>
-                    <p className="text-sm text-gray-600">
-                      Solicitado: {formatearFecha(solicitud.Fecha_Hora_Solicitud)}
-                    </p>
-                  </div>
-                  {getEstadoBadge(solicitud.Estado)}
-                </div>
-
-                {solicitud.Estado === 'autorizada' && solicitud.NIP && (
-                  <div className="mt-3 p-3 bg-green-50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-green-800">NIP:</span>
-                      <span className="text-lg font-bold text-green-900 font-mono">
-                        {solicitud.NIP}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 };
