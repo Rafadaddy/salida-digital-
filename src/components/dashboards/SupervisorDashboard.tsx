@@ -332,11 +332,6 @@ const SupervisorDashboard: React.FC = () => {
                               <p className="text-blue-700 text-xs mt-1">
                                 ✈ Regreso registrado: {formatearFecha(solicitud.Fecha_Hora_Regreso)}
                               </p>
-                              {solicitud.Duracion_Fuera && (
-                                <p className="text-blue-900 font-bold text-sm mt-2">
-                                  ⏱ Tiempo fuera: {solicitud.Duracion_Fuera}
-                                </p>
-                              )}
                             </div>
                           )}
 
@@ -351,6 +346,16 @@ const SupervisorDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Tiempo Fuera Prominente (Solo para regresadas) */}
+                  {solicitud.Estado === 'regresada' && solicitud.Duracion_Fuera && (
+                    <div className="text-right ml-4 flex-shrink-0 bg-red-50 p-4 rounded-xl border border-red-100 shadow-sm">
+                      <p className="text-xs font-bold text-red-500 uppercase tracking-widest mb-1">Tiempo Fuera</p>
+                      <p className="text-3xl font-black text-red-600 leading-none">
+                        {solicitud.Duracion_Fuera.toUpperCase()}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Botones de acción */}
                   {solicitud.Estado === 'pendiente' && (
