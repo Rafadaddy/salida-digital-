@@ -18,8 +18,10 @@ import {
 
 // Tipos TypeScript
 export interface Usuario {
+  id?: string;
   nombre: string;
-  rol: 'colaborador' | 'supervisor' | 'vigilante';
+  rol: 'colaborador' | 'supervisor' | 'vigilante' | 'admin';
+  password?: string;
   activo: boolean;
   email?: string;
 }
@@ -53,8 +55,12 @@ export interface AppContextType {
   validarNIP: (nip: string) => Promise<any>;
   autorizarSalidaFisica: (nip: string) => Promise<boolean>;
   clearError: () => void;
-  verificarUsuario?: (nombre: string, rol: string) => Promise<boolean>;
+  login: (nombre: string, password: string) => Promise<boolean>;
   registrarRegreso: (nip: string) => Promise<boolean>;
+  crearUsuario: (nuevoUser: Partial<Usuario>) => Promise<boolean>;
+  obtenerUsuarios: () => Promise<Usuario[]>;
+  eliminarUsuario: (id: string) => Promise<boolean>;
+  actualizarPassword: (id: string, nuevaPass: string) => Promise<boolean>;
   exportarExcel?: (solicitudes: Solicitud[], nombreArchivo?: string) => void;
 }
 
@@ -317,14 +323,85 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const verificarUsuario = async (nombre: string, rol: string): Promise<boolean> => {
-    const userFound = DEFAULT_USUARIOS.find(u => u.nombre.toLowerCase() === nombre.toLowerCase() && u.rol === rol);
-    if (userFound) {
-      setUsuario(userFound);
+  const login = async (nombre: string, password: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      const q = query(
+        collection(db, "usuarios"),
+        where("nombre", "==", nombre),
+        where("password", "==", password),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setError("Usuario o contraseña incorrectos");
+        setIsLoading(false);
+        return false;
+      }
+
+      const userData = querySnapshot.docs[0].data() as Usuario;
+      const userWithId = { ...userData, id: querySnapshot.docs[0].id };
+
+      if (!userWithId.activo) {
+        setError("Esta cuenta está desactivada");
+        setIsLoading(false);
+        return false;
+      }
+
+      setUsuario(userWithId);
+      setIsLoading(false);
       return true;
+    } catch (err) {
+      console.error(err);
+      setError("Error al iniciar sesión");
+      setIsLoading(false);
+      return false;
     }
-    setError("Usuario no registrado en el sistema local");
-    return false;
+  };
+
+  const crearUsuario = async (nuevoUser: Partial<Usuario>): Promise<boolean> => {
+    try {
+      await addDoc(collection(db, "usuarios"), {
+        ...nuevoUser,
+        activo: true
+      });
+      return true;
+    } catch (err) {
+      setError("Error al crear usuario");
+      return false;
+    }
+  };
+
+  const obtenerUsuarios = async (): Promise<Usuario[]> => {
+    try {
+      const q = query(collection(db, "usuarios"), orderBy("nombre", "asc"));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Usuario));
+    } catch (err) {
+      setError("Error al obtener usuarios");
+      return [];
+    }
+  };
+
+  const eliminarUsuario = async (id: string): Promise<boolean> => {
+    try {
+      await deleteDoc(doc(db, "usuarios", id));
+      return true;
+    } catch (err) {
+      setError("Error al eliminar usuario");
+      return false;
+    }
+  };
+
+  const actualizarPassword = async (id: string, nuevaPass: string): Promise<boolean> => {
+    try {
+      await updateDoc(doc(db, "usuarios", id), { password: nuevaPass });
+      return true;
+    } catch (err) {
+      setError("Error al actualizar contraseña");
+      return false;
+    }
   };
 
   const clearError = () => setError(null);
@@ -334,7 +411,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       usuario, solicitudes, isLoading, error,
       setUsuario, actualizarSolicitudes, crearSolicitud,
       autorizarSolicitud, validarNIP, autorizarSalidaFisica,
-      clearError, verificarUsuario, registrarRegreso, exportarExcel
+      clearError, login, registrarRegreso, crearUsuario,
+      obtenerUsuarios, eliminarUsuario, actualizarPassword, exportarExcel
     }}>
       {children}
     </AppContext.Provider>

@@ -1,151 +1,97 @@
 import React, { useState } from 'react';
-import { Users, Shield, Eye, AlertCircle, Wrench } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
+import { Shield, AlertCircle, RefreshCw, LogIn, User, Lock } from 'lucide-react';
 
 const Login: React.FC = () => {
-  const { setUsuario, error, clearError, isLoading, verificarUsuario } = useApp();
+  const { error, clearError, isLoading, login } = useApp();
   const [nombre, setNombre] = useState('');
-  const [rolSeleccionado, setRolSeleccionado] = useState<'colaborador' | 'supervisor' | 'vigilante'>('colaborador');
+  const [password, setPassword] = useState('');
 
-  const roles = [
-    {
-      id: 'colaborador' as const,
-      nombre: 'Colaborador',
-      descripcion: 'Crear y gestionar mis solicitudes de salida',
-      icono: Users,
-      color: 'bg-blue-500',
-    },
-    {
-      id: 'supervisor' as const,
-      nombre: 'Supervisor',
-      descripcion: 'Aprobar o rechazar solicitudes de pases',
-      icono: Shield,
-      color: 'bg-green-500',
-    },
-    {
-      id: 'vigilante' as const,
-      nombre: 'Vigilante',
-      descripcion: 'Validar NIPs y autorizar salidas físicas',
-      icono: Eye,
-      color: 'bg-red-500',
-    },
-  ];
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!nombre.trim() || !password.trim()) return;
 
-    if (!nombre.trim()) {
-      return;
-    }
-
-    clearError();
-
-    try {
-      // Usar la función verificarUsuario del contexto (funciona tanto en modo demo como real)
-      const success = await verificarUsuario?.(nombre.trim(), rolSeleccionado);
-
-      if (!success) {
-        // El error ya fue manejado por el contexto
-        return;
-      }
-
-      // El usuario se configuró automáticamente en el contexto si el login fue exitoso
-    } catch (err) {
-      console.error('Error de autenticación:', err);
-      // El error ya se maneja en el contexto
-    }
+    await login(nombre.trim(), password);
   };
 
   return (
-    <div key="login-container" className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mb-4">
-            <Shield className="h-8 w-8 text-white" />
+    <div key="login-container" className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 flex items-center justify-center p-4 font-sans">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 border border-white/20">
+        <div className="text-center mb-10">
+          <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-200 transform -rotate-6">
+            <Shield className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            <span>Sistema de Pases de Salida</span>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">
+            <span>Sistema Digital</span>
           </h1>
-          <p className="text-gray-600">
-            <span>Accede con tu nombre y selecciona tu rol</span>
-          </p>
+          <p className="text-slate-500 font-medium"><span>Ingresa tus credenciales de acceso</span></p>
         </div>
 
         {error && (
-          <div key="login-error-alert" className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 animate-pulse">
             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-red-700"><span>{error}</span></div>
+            <p className="text-red-700 text-sm font-medium"><span>{error}</span></p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre Completo
+            <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">
+              <span>Nombre de Usuario</span>
             </label>
-            <input
-              id="nombre"
-              type="text"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              placeholder="Ej: Juan Pérez"
-              required
-              disabled={isLoading}
-            />
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                value={nombre}
+                onChange={(e) => {
+                  setNombre(e.target.value);
+                  if (error) clearError();
+                }}
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none font-medium text-slate-900 placeholder:text-slate-400"
+                placeholder="Ej: Juan Pérez"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Selecciona tu rol
+            <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">
+              <span>Contraseña</span>
             </label>
-            <div className="space-y-3">
-              {roles.map((rol) => {
-                const IconComponent = rol.icono;
-                return (
-                  <label
-                    key={rol.id}
-                    className={`block p-4 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${rolSeleccionado === rol.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200'
-                      }`}
-                  >
-                    <input
-                      type="radio"
-                      name="rol"
-                      value={rol.id}
-                      checked={rolSeleccionado === rol.id}
-                      onChange={(e) => setRolSeleccionado(e.target.value as any)}
-                      className="sr-only"
-                      disabled={isLoading}
-                    />
-                    <div className="flex items-start gap-3">
-                      <div className={`${rol.color} p-2 rounded-lg`}>
-                        <IconComponent className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">{rol.nombre}</div>
-                        <div className="text-sm text-gray-600">{rol.descripcion}</div>
-                      </div>
-                    </div>
-                  </label>
-                );
-              })}
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) clearError();
+                }}
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none font-medium text-slate-900 placeholder:text-slate-400"
+                placeholder="••••••••"
+                required
+              />
             </div>
           </div>
 
           <button
             type="submit"
-            disabled={isLoading || !nombre.trim()}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading || !nombre || !password}
+            className="w-full py-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-lg rounded-2xl shadow-xl shadow-blue-200 transition-all disabled:opacity-50 flex items-center justify-center gap-3 mt-4"
           >
-            {isLoading ? 'Verificando...' : 'Acceder al Sistema'}
+            {isLoading ? (
+              <RefreshCw className="h-6 w-6 animate-spin" />
+            ) : (
+              <LogIn className="h-6 w-6" />
+            )}
+            <span>{isLoading ? 'Verificando...' : 'Entrar al Sistema'}</span>
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
-            Sistema desarrollado para gestión empresarial de pases de salida
+        <div className="mt-10 text-center">
+          <p className="text-slate-400 text-sm font-medium">
+            <span>Si olvidaste tu acceso, contacta al Administrador</span>
           </p>
         </div>
       </div>
