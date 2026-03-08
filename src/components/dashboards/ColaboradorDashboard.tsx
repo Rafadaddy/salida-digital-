@@ -12,6 +12,7 @@ const ColaboradorDashboard: React.FC = () => {
   const [solicitudEnSalida, setSolicitudEnSalida] = useState<any>(null);
   const [mensajeRegreso, setMensajeRegreso] = useState('');
   const [tipoMensajeRegreso, setTipoMensajeRegreso] = useState<'exito' | 'error'>('exito');
+  const [tienePaseActivo, setTienePaseActivo] = useState(false);
 
   const motivosComunes = [
     'COMER',
@@ -33,8 +34,14 @@ const ColaboradorDashboard: React.FC = () => {
     const solicitudEnSalida = solicitudesActivas.find(
       (s) => s.Estado === 'en_salida' && s.Nombre === usuario?.nombre
     );
+
+    const tieneCualquierActiva = solicitudesActivas.some(
+      (s) => ['pendiente', 'autorizada', 'en_salida'].includes(s.Estado) && s.Nombre === usuario?.nombre
+    );
+
     setSolicitudActiva(solicitudAutorizada || null);
     setSolicitudEnSalida(solicitudEnSalida || null);
+    setTienePaseActivo(tieneCualquierActiva);
   }, [solicitudes, usuario]);
 
   const handleCrearSolicitud = async (e: React.FormEvent) => {
@@ -277,7 +284,7 @@ const ColaboradorDashboard: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900">Nueva Solicitud</h2>
-          {!mostrarFormulario && (
+          {!mostrarFormulario && !tienePaseActivo && (
             <button
               onClick={() => setMostrarFormulario(true)}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -287,6 +294,18 @@ const ColaboradorDashboard: React.FC = () => {
             </button>
           )}
         </div>
+
+        {tienePaseActivo && !mostrarFormulario && (
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-blue-800 font-bold text-sm">Ya tienes una solicitud en curso</p>
+              <p className="text-blue-700 text-xs mt-1">
+                No puedes solicitar un nuevo pase hasta que tu solicitud actual sea finalizada, rechazada o expire.
+              </p>
+            </div>
+          </div>
+        )}
 
         {mostrarFormulario && (
           <form onSubmit={handleCrearSolicitud} className="space-y-4">
