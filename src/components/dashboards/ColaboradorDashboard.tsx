@@ -6,17 +6,18 @@ const ColaboradorDashboard: React.FC = () => {
   const { usuario, solicitudes, crearSolicitud, actualizarSolicitudes, isLoading, error, registrarRegreso, exportarExcel } = useApp();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [nuevoMotivo, setNuevoMotivo] = useState('');
+  const [motivoSeleccionado, setMotivoSeleccionado] = useState('');
+  const [motivoPersonalizado, setMotivoPersonalizado] = useState('');
   const [solicitudActiva, setSolicitudActiva] = useState<any>(null);
   const [solicitudEnSalida, setSolicitudEnSalida] = useState<any>(null);
   const [mensajeRegreso, setMensajeRegreso] = useState('');
   const [tipoMensajeRegreso, setTipoMensajeRegreso] = useState<'exito' | 'error'>('exito');
 
   const motivosComunes = [
-    'Cita médica',
-    'Trámite personal',
-    'Emergencia familiar',
-    'Diligencia bancaria',
-    'Otro',
+    'COMER',
+    'COMPRAR',
+    'CITA MEDICA',
+    'OTRO',
   ];
 
   // Buscar solicitud autorizada activa y en salida
@@ -39,11 +40,13 @@ const ColaboradorDashboard: React.FC = () => {
   const handleCrearSolicitud = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!nuevoMotivo) return;
+    const motivoFinal = motivoSeleccionado === 'OTRO' ? motivoPersonalizado : motivoSeleccionado;
+    if (!motivoFinal) return;
 
-    const exito = await crearSolicitud(nuevoMotivo);
+    const exito = await crearSolicitud(motivoFinal);
     if (exito) {
-      setNuevoMotivo('');
+      setMotivoSeleccionado('');
+      setMotivoPersonalizado('');
       setMostrarFormulario(false);
     }
   };
@@ -292,8 +295,8 @@ const ColaboradorDashboard: React.FC = () => {
                 Motivo de la salida
               </label>
               <select
-                value={nuevoMotivo}
-                onChange={(e) => setNuevoMotivo(e.target.value)}
+                value={motivoSeleccionado}
+                onChange={(e) => setMotivoSeleccionado(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               >
@@ -304,12 +307,13 @@ const ColaboradorDashboard: React.FC = () => {
                   </option>
                 ))}
               </select>
-              {nuevoMotivo === 'Otro' && (
+              {motivoSeleccionado === 'OTRO' && (
                 <input
                   type="text"
                   placeholder="Especifica el motivo..."
+                  value={motivoPersonalizado}
                   className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  onChange={(e) => setNuevoMotivo(e.target.value)}
+                  onChange={(e) => setMotivoPersonalizado(e.target.value)}
                   required
                 />
               )}
@@ -318,7 +322,7 @@ const ColaboradorDashboard: React.FC = () => {
             <div className="flex gap-3">
               <button
                 type="submit"
-                disabled={isLoading || !nuevoMotivo}
+                disabled={isLoading || !motivoSeleccionado || (motivoSeleccionado === 'OTRO' && !motivoPersonalizado)}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 {isLoading ? 'Creando...' : 'Crear Solicitud'}
@@ -327,7 +331,8 @@ const ColaboradorDashboard: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setMostrarFormulario(false);
-                  setNuevoMotivo('');
+                  setMotivoSeleccionado('');
+                  setMotivoPersonalizado('');
                 }}
                 className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
               >
