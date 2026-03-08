@@ -21,6 +21,7 @@ export interface Usuario {
   id?: string;
   nombre: string;
   rol: 'colaborador' | 'supervisor' | 'vigilante' | 'admin';
+  clave?: string;
   password?: string;
   activo: boolean;
   email?: string;
@@ -326,13 +327,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const login = async (nombre: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const q = query(
+
+      // Intentar buscar por nombre
+      let q = query(
         collection(db, "usuarios"),
         where("nombre", "==", nombre),
         where("password", "==", password),
         limit(1)
       );
-      const querySnapshot = await getDocs(q);
+      let querySnapshot = await getDocs(q);
+
+      // Si no encuentra por nombre, intentar buscar por clave (ID de empleado)
+      if (querySnapshot.empty) {
+        q = query(
+          collection(db, "usuarios"),
+          where("clave", "==", nombre),
+          where("password", "==", password),
+          limit(1)
+        );
+        querySnapshot = await getDocs(q);
+      }
 
       if (querySnapshot.empty) {
         setError("Usuario o contraseña incorrectos");

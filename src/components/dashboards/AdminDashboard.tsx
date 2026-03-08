@@ -16,6 +16,7 @@ const AdminDashboard: React.FC = () => {
     const [nuevoUser, setNuevoUser] = useState({
         nombre: '',
         rol: 'colaborador' as Usuario['rol'],
+        clave: '',
         password: '',
         email: '',
         activo: true
@@ -37,7 +38,7 @@ const AdminDashboard: React.FC = () => {
         e.preventDefault();
         const exito = await crearUsuario(nuevoUser);
         if (exito) {
-            setNuevoUser({ nombre: '', rol: 'colaborador', password: '', email: '', activo: true });
+            setNuevoUser({ nombre: '', rol: 'colaborador', clave: '', password: '', email: '', activo: true });
             setMostrarForm(false);
             cargarUsuarios();
         }
@@ -128,6 +129,20 @@ const AdminDashboard: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">Clave de Empleado (Opcional)</label>
+                                <div className="relative">
+                                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        value={nuevoUser.clave}
+                                        onChange={e => setNuevoUser({ ...nuevoUser, clave: e.target.value })}
+                                        placeholder="Ej: 1330779"
+                                        className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700 ml-1">Contraseña Inicial</label>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -191,6 +206,7 @@ const AdminDashboard: React.FC = () => {
                             <thead className="bg-slate-50/50 text-slate-500 text-xs font-bold uppercase tracking-wider">
                                 <tr>
                                     <th className="px-8 py-4">Usuario</th>
+                                    <th className="px-8 py-4">Clave</th>
                                     <th className="px-8 py-4">Rol</th>
                                     <th className="px-8 py-4 text-center">Estado</th>
                                     <th className="px-8 py-4 text-right">Acciones</th>
@@ -211,10 +227,15 @@ const AdminDashboard: React.FC = () => {
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
+                                            <span className="text-sm font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                                                {u.clave || '---'}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-5">
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tight ${u.rol === 'admin' ? 'bg-purple-100 text-purple-700' :
-                                                    u.rol === 'supervisor' ? 'bg-green-100 text-green-700' :
-                                                        u.rol === 'vigilante' ? 'bg-orange-100 text-orange-700' :
-                                                            'bg-blue-100 text-blue-700'
+                                                u.rol === 'supervisor' ? 'bg-green-100 text-green-700' :
+                                                    u.rol === 'vigilante' ? 'bg-orange-100 text-orange-700' :
+                                                        'bg-blue-100 text-blue-700'
                                                 }`}>
                                                 {u.rol}
                                             </span>
