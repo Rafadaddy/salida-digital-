@@ -37,6 +37,7 @@ export interface Solicitud {
   Fecha_Hora_Salida_Fisica?: string;
   Fecha_Hora_Regreso?: string;
   Duracion_Fuera?: string;
+  TTL_Expiration?: any;
 }
 
 export interface AppContextType {
@@ -173,7 +174,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         Motivo: motivo,
         Fecha_Hora_Solicitud: serverTimestamp(),
         Estado: 'pendiente',
-        ID: `PS-${Date.now().toString().slice(-6)}`
+        ID: `PS-${Date.now().toString().slice(-6)}`,
+        TTL_Expiration: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 días para depuración automática
       });
       return true;
     } catch (err) {
