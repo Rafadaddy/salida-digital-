@@ -133,7 +133,7 @@ function AppContent() {
               Sistema de Gestión de Pases de Salida Personal © 2026
             </p>
             <p className="mt-1 font-medium">
-              Desarrollado con React + TypeScript + Firebase Firestore
+              Desarrollado por RHR.
             </p>
           </div>
         </div>
