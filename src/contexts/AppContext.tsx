@@ -12,7 +12,8 @@ import {
   limit,
   orderBy,
   serverTimestamp,
-  Timestamp
+  Timestamp,
+  deleteDoc
 } from 'firebase/firestore';
 
 // Tipos TypeScript
@@ -158,6 +159,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     });
 
+    // Función de limpieza automática para supervisores
+    const limpiarRegistrosExpirados = async () => {
+      if (usuario?.rol === 'supervisor') {
+        try {
+          const ahora = new Date();
+          const qLimpieza = query(
+            collection(db, "solicitudes"),
+            where("TTL_Expiration", "<=", ahora)
+          );
+          const snapshot = await getDocs(qLimpieza);
+          snapshot.forEach((docSnap) => {
+            deleteDoc(docSnap.ref);
+          });
+          if (!snapshot.empty) {
+            console.log(`🧹 Se depuraron ${snapshot.size} registros antiguos.`);
+          }
+        } catch (err) {
+          console.error("Error en limpieza automática:", err);
+        }
+      }
+    };
+
+    limpiarRegistrosExpirados();
     return () => unsubscribe();
   }, [usuario]);
 
